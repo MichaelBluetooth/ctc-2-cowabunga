@@ -28,7 +28,7 @@ const config = {
         default: "arcade",
         arcade: {
             gravity: { y: 0 },
-            debug: false,
+            debug: true,
         },
     },
     scene: [TitleScene, SurfScene, GameOverScene, LevelCompleteScene, GameCompleteScene, LevelCompleteTransitionScene],

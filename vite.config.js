@@ -9,7 +9,7 @@ export default defineConfig({
     },
     host: '0.0.0.0', // Listen on all network interfaces
   },
-  base: 'ctc-2-cowabunga',
+  base: process.env.VITE_BASE_URL || '/',
   build: {
     outDir: 'dist',
   }

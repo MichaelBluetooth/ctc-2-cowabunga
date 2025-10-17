@@ -14,9 +14,9 @@ export default class LevelCompleteTransitionScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image("shore-bg", "/assets/content/background.png");
-    this.load.image("player", "/assets/content/player.png");
-    this.load.image("beach", "/assets/content/beach.png");
+    this.load.image("shore-bg", "assets/content/background.png");
+    this.load.image("player", "assets/content/player.png");
+    this.load.image("beach", "assets/content/beach.png");
   }
 
   create() {

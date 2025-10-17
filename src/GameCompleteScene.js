@@ -9,8 +9,8 @@ export default class GameCompleteScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image("gamecomplete-bg", "/assets/content/gamecomplete-bg.png");
-        this.load.image("retry-button", "/assets/content/play-button.png");
+        this.load.image("gamecomplete-bg", "assets/content/gamecomplete-bg.png");
+        this.load.image("retry-button", "assets/content/play-button.png");
     }
 
     create() {

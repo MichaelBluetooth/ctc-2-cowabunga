@@ -23,10 +23,10 @@ export default class SurfScene extends Phaser.Scene {
             this.load.image(obst.name, obst.file);
         }
 
-        this.load.image("background", "/assets/content/background.png");
-        this.load.image("player", "/assets/content/player.png");
-        this.load.image("player_jump", "/assets/content/player_jump.png");
-        this.load.image("player_celebrate", "/assets/content/player_celebrate.png");
+        this.load.image("background", "assets/content/background.png");
+        this.load.image("player", "assets/content/player.png");
+        this.load.image("player_jump", "assets/content/player_jump.png");
+        this.load.image("player_celebrate", "assets/content/player_celebrate.png");
     }
 
     create() {
@@ -117,6 +117,10 @@ export default class SurfScene extends Phaser.Scene {
         this.player.setAngle(180); // facing downward
         this.player.setDepth(10);
 
+        // //shrink the hitbox a bit
+        const radius = this.player.body.width * .40;
+        this.player.body.setCircle(radius, this.player.body.width / 2 - radius, this.player.body.height / 2 - radius);        
+
         // Controls
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -192,6 +196,9 @@ export default class SurfScene extends Phaser.Scene {
 
         const x = Phaser.Math.Between(50, this.scale.width - 50);
         const obstacle = this.obstacles.create(x, -50, obstacleName);
+        const radius = obstacle.width * .36;
+        obstacle.setCircle(radius, obstacle.width / 2 - radius, obstacle.height / 2 - radius);
+
 
         //Base speed and direction
         const baseSpeed = Phaser.Math.Between(150, 250) * this.obstacleSpeedModifier;
@@ -217,6 +224,8 @@ export default class SurfScene extends Phaser.Scene {
 
         const x = Phaser.Math.Between(50, this.scale.width - 50);
         const bonusPointsObj = this.bonusPoints.create(x, -50, bonusPtsName);
+        const radius = bonusPointsObj.width * .36;
+        bonusPointsObj.setCircle(radius, bonusPointsObj.width / 2 - radius, bonusPointsObj.height / 2 - radius);
 
         //Base speed and direction
         const baseSpeed = Phaser.Math.Between(150, 250) * this.bonusPointsSpeedModifier;
@@ -289,13 +298,13 @@ export default class SurfScene extends Phaser.Scene {
 
                 this.player.y += moveY * this.playerSpeedModifier;
                 this.player.y = Phaser.Math.Clamp(this.player.y, 40, this.scale.height - 40);
-            } else {
-                if (this.cursors.left.isDown) this.player.setVelocityX(-speed);
-                else if (this.cursors.right.isDown) this.player.setVelocityX(speed);
-
-                if (this.cursors.up.isDown) this.player.setVelocityY(-speed);
-                else if (this.cursors.down.isDown) this.player.setVelocityY(speed);
             }
+
+            if (this.cursors.left.isDown) this.player.setVelocityX(-speed);
+            else if (this.cursors.right.isDown) this.player.setVelocityX(speed);
+
+            if (this.cursors.up.isDown) this.player.setVelocityY(-speed);
+            else if (this.cursors.down.isDown) this.player.setVelocityY(speed);
         }
 
         // Keep player in bounds

@@ -5,10 +5,10 @@ export default class TitleScene extends Phaser.Scene {
 
   preload() {
     // Load any assets used on the title screen
-    this.load.image("title-bg", "/assets/content/title-bg.png");
-    this.load.image("play-button", "/assets/content/play-button.png");
+    this.load.image("title-bg", "assets/content/title-bg.png");
+    this.load.image("play-button", "assets/content/play-button.png");
 
-    this.load.audio('bgMusic', '/assets/content/Totally_Tubular_Vibes.mp3');
+    this.load.audio('bgMusic', 'assets/content/Totally_Tubular_Vibes.mp3');
   }
 
   create() {
