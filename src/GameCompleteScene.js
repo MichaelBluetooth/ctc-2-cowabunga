@@ -17,24 +17,27 @@ export default class GameCompleteScene extends Phaser.Scene {
         const { width, height } = this.scale;
 
         // 🌅 Background
-        this.add.image(width / 2, height / 2, "gamecomplete-bg").setOrigin(0.5);
+        const bg = this.add.image(0, 0, "gamecomplete-bg").setOrigin(0);
+        bg.displayWidth = this.scale.width;
+        bg.displayHeight = this.scale.height;
 
         // 🧮 Show score
         this.add
-            .text(width / 2, 300, `Final Score: ${this.finalScore}`, {
+            .text(width / 2, height / 1.4, `Score: ${this.finalScore}`, {
                 fontFamily: "Impact",
-                fontSize: 36,
+                fontSize: 75,
                 color: "#ffff00",
                 stroke: "#000",
-                strokeThickness: 6
+                strokeThickness: 6,
             })
             .setOrigin(0.5);
 
-        // 🔁 Retry button
+
         const retryButton = this.add
-            .image(width / 2, height / 1.6, "retry-button")
+            .image(width / 2, height / 1.2, "retry-button")
             .setInteractive()
-            .setScale(.8);
+            .setScale(1.5);
+
 
         retryButton.on("pointerover", () => retryButton.setScale(.9));
         retryButton.on("pointerout", () => retryButton.setScale(.8));

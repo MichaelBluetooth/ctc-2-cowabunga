@@ -16,12 +16,14 @@ export default class LevelCompleteScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
 
-    this.add.image(width / 2, height / 2, "level-bg").setOrigin(0.5);
+    const bg = this.add.image(0, 0, "level-bg").setOrigin(0);
+    bg.displayWidth = width;
+    bg.displayHeight = height;
 
     this.add
-      .text(width / 2, 340, `Score: ${this.score}`, {
+      .text(width / 2, height / 1.4, `Score: ${this.score}`, {
         fontFamily: "Impact",
-        fontSize: 36,
+        fontSize: 75,
         color: "#ffff00",
         stroke: "#000",
         strokeThickness: 6,
@@ -29,12 +31,12 @@ export default class LevelCompleteScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     const nextButton = this.add
-      .image(width / 2, height / 1.3, "next-button")
+      .image(width / 2, height / 1.2, "next-button")
       .setInteractive()
-      .setScale(.8);
+      .setScale(1.5);
 
-    nextButton.on("pointerover", () => nextButton.setScale(.9));
-    nextButton.on("pointerout", () => nextButton.setScale(.8));
+    nextButton.on("pointerover", () => nextButton.setScale(1.6));
+    nextButton.on("pointerout", () => nextButton.setScale(1.5));
 
     nextButton.on("pointerdown", () => {
       this.scene.start("SurfScene", {

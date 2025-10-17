@@ -3,21 +3,14 @@ export function flipCoin() {
     return randomNumber < 0.5;
 }
 
-export function getDimensions() {
-    const maxWidth = 480;
-    const maxHeight = 720;
+export function getDimensions(scene) {
+    let { width, height } = scene.scale;
 
-    if (isMobileDevice()) {
-        return {
-            height: window.innerWidth,
-            width: window.innerHeight
-        }
-    } else {
-        return {
-            height: 720,
-            width: 480
-        }
+    if (width > height) {
+        width = 480;
+        height = 720;
     }
+    return { width, height };
 }
 
 

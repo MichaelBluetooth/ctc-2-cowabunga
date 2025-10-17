@@ -23,14 +23,14 @@ export default class LevelCompleteTransitionScene extends Phaser.Scene {
     const { width, height } = this.scale;
 
     // 🏖️ Add scrolling background
-    this.bg = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, 'shore-bg');
+    this.bg = this.add.tileSprite(0, 0, width, height, 'shore-bg');
     this.bg.setOrigin(0, 0);
     this.bg.tilePositionY = this.scrollY;
 
     // 🏄 Add player at last known position
     this.player = this.physics.add.sprite(this.startX, this.startY, "player");
     this.player.setDepth(10);
-    this.player.setScale(0.3);
+    this.player.setScale(1);
 
     // Disable controls by not attaching input handlers
     this.physics.world.gravity.y = 0;
@@ -53,29 +53,29 @@ export default class LevelCompleteTransitionScene extends Phaser.Scene {
 
     this.scoreText = this.add.text(10, 10, `Score: ${this.score}`, {
       fontFamily: "Arial",
-      fontSize: 20,
+      fontSize: 75,
       color: "#ffff66",
       stroke: "#000000",
       strokeThickness: 3,
     }).setDepth(1);
 
     // 🏄 Level display (just under the score)
-    this.levelText = this.add.text(10, 40, `Level: ${this.level}`, {
+    this.levelText = this.add.text(10, 100, `Level: ${this.level}`, {
       fontFamily: "Arial",
-      fontSize: 20,
+      fontSize: 75,
       color: "#ffff66",
       stroke: "#000000",
       strokeThickness: 3,
     }).setDepth(1);
 
 
-    const beach = this.add.image(this.scale.width / 2, this.scale.height + 100, 'beach');
-    beach.setOrigin(0.5);
+    const beach = this.add.image(width, height, 'beach');
+    beach.x = width / 2;
 
     this.tweens.add({
       targets: beach,
-      y: this.scale.height - 150,
-      duration: 1000,
+      y: height - 325,
+      duration: 1500,
       ease: 'Sine.easeOut',
       delay: 350,
       onComplete: () => {

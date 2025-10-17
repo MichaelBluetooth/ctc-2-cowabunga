@@ -6,14 +6,30 @@ import GameCompleteScene from "./GameCompleteScene.js";
 import LevelCompleteScene from "./LevelCompleteScene.js";
 import LevelCompleteTransitionScene from './LevelCompleteTransitionScene.js'
 
+window.addEventListener("orientationchange", () => {
+    if (window.orientation === 90 || window.orientation === -90) {
+        // Landscape
+        document.getElementById("rotateOverlay").style.display = "flex";
+    } else {
+        document.getElementById("rotateOverlay").style.display = "none";
+    }
+});
+
 const config = {
     type: Phaser.AUTO,
-    width: 480,
-    height: 720,
+    scale: {
+        mode: Phaser.Scale.RESIZE,   // <– dynamically match window size
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: window.innerWidth,
+        height: window.innerHeight,
+    },
     backgroundColor: "#00bfff",
     physics: {
         default: "arcade",
-        arcade: { debug: false },
+        arcade: {
+            gravity: { y: 0 },
+            debug: false,
+        },
     },
     scene: [TitleScene, SurfScene, GameOverScene, LevelCompleteScene, GameCompleteScene, LevelCompleteTransitionScene],
 };
