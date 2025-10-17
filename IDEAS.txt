@@ -1,0 +1,45 @@
+LIMITATIONS:
+- limit player to three jumps that recharge over time
+
+SCORING
+- score continuously goes up
+- catch cows for boost (e.g. 1000 pts!)
+- survive until the end to get multiplier
+- jump over obstacles for a bonus
+
+LEVELS
+- 5 levels, objects move faster
+- Completing 5th level gets more points
+
+BUFFS
+- Grab item to move faster temporarily
+- Grab item to recharge jumps immediatly
+- Grab item to grant one-time invulnerability to collision
+
+DEBUFFS
+- Oil slick slows you down temporarily
+
+ANIMATIONS/SPRITES (PLAYER)
+- "YAY" when grabbing good item or catching a cow
+- Tired/Exhausted when out of jumps
+- Sad when colliding with obstacle
+- "YEEHAW" or cool look when jumping
+
+SPRITES (OBSTACLES)
+- Shark (any direction)
+- Person in a tube (always going up)
+- Surfers dudes (always going down)
+- Buoy (always going up)
+- Boat (any direction)
+
+SPRITES (COWS)
+- Surfing cow (always going down)
+- Tubing cow (always going up)
+
+
+PLAN:
+1. Title screen, 5 levels, final score presentation
+2. Limit jumps to 3
+3. Bonus scoring by catching cows
+4. Add buffs
+5. Add debuffs

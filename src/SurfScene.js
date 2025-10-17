@@ -1,0 +1,345 @@
+import { BONUS_POINTS, BONUS_POINTS_DOWN, BONUS_POINTS_UP, OBSTACLES, OBSTACLES_DOWN, OBSTACLES_UP } from "./Assets";
+
+export default class SurfScene extends Phaser.Scene {
+    constructor() {
+        super("SurfScene");
+    }
+
+    init(data) {
+        this.level = data.level || 1;
+        this.score = data.score || 0;
+        this.totalScore = data.totalScore || 0;
+
+        this.levelCompleteTriggered = false;
+        this.allowSpriteSpawns = true;
+    }
+
+    preload() {
+        for (const bonus of BONUS_POINTS) {
+            this.load.image(bonus.name, bonus.file);
+        }
+
+        for (const obst of OBSTACLES) {
+            this.load.image(obst.name, obst.file);
+        }
+
+        this.load.image("background", "assets/content/background.png");
+        this.load.image("player", "assets/content/player.png");
+        this.load.image("player_jump", "assets/content/player_jump.png");
+        this.load.image("player_celebrate", "assets/content/player_celebrate.png");
+    }
+
+    create() {
+        const { width, height } = this.scale;
+        this.maxLevelScore = 750;
+        this.scoreActive = true;
+        this.totalLevels = 5;
+        this.bonusPointsValue = 250;
+
+        // 🎚️ Level modifiers
+        this.playerSpeedModifier = 1.0 + (this.level - 1) * 0.05;
+        this.obstacleSpeedModifier = 1.0 + (this.level - 1) * 0.25;
+        this.bonusPointsSpeedModifier = 1.0 + (this.level - 1) * 0.15;
+
+        this.scoreText = this.add.text(10, 10, `Score: ${this.score + this.totalScore}`, {
+            fontFamily: "Arial",
+            fontSize: 20,
+            color: "#ffff66",
+            stroke: "#000000",
+            strokeThickness: 3,
+        }).setDepth(1);
+
+        // 🏄 Level display (just under the score)
+        this.levelText = this.add.text(10, 40, `Level: ${this.level}`, {
+            fontFamily: "Arial",
+            fontSize: 20,
+            color: "#ffff66",
+            stroke: "#000000",
+            strokeThickness: 3,
+        }).setDepth(1);
+
+        // Background
+        this.bg = this.add
+            .tileSprite(0, 0, width, height, "background")
+            .setOrigin(0)
+            .setDepth(0)
+            .setScrollFactor(0);
+
+        // Player setup
+        this.player = this.physics.add.sprite(width / 2, height * 0.2, "player");
+        this.player.setCollideWorldBounds(true);
+        this.player.setScale(0.3);
+        this.player.setAngle(180); // facing downward
+        this.player.setDepth(10);
+
+        // Controls
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+        // Obstacles
+        this.obstacles = this.physics.add.group();
+
+        // Bonus Points
+        this.bonusPoints = this.physics.add.group();
+
+        // Spawn timer
+        this.obstacleSpawnTimer = this.time.addEvent({
+            delay: 1200, //todo: how to make this delay somewhat random?
+            callback: () => {
+                if (this.allowSpriteSpawns) {
+                    this.spawnObstacle();
+                }
+            },
+            callbackScope: this,
+            loop: true,
+        });
+
+        this.bonusPointsSpawnTimer = this.time.addEvent({
+            delay: 1600, //todo: how to make this delay somewhat random?
+            callback: () => {
+                if (this.allowSpriteSpawns) {
+                    this.spawnBonusPoints();
+                }
+            },
+            callbackScope: this,
+            loop: true,
+        });
+
+        // Use overlap instead of collider (prevents freezing)
+        this.physics.add.overlap(
+            this.player,
+            this.obstacles,
+            this.handleCollision,
+            null,
+            this
+        );
+        this.physics.add.overlap(
+            this.player,
+            this.bonusPoints,
+            this.handlePointsCollision,
+            null,
+            this
+        );
+
+        // Jump state
+        this.isJumping = false;
+        this.jumpDuration = 1000;
+
+        // UI
+        this.score = 0;
+        this.scoreText.setScrollFactor(0);
+
+        this.gameOverText = this.add
+            .text(width / 2, height / 2, "", {
+                fontSize: "32px",
+                fill: "#fff",
+                fontFamily: "sans-serif",
+            })
+            .setOrigin(0.5);
+    }
+
+    spawnObstacle() {
+        //Randomly decide direction: up or down
+        const goingDown = Phaser.Math.Between(0, 1) === 1;
+
+        const obstaclesBag = goingDown ? OBSTACLES_DOWN : OBSTACLES_UP;
+        const obstacleName = obstaclesBag[Phaser.Math.Between(0, obstaclesBag.length - 1)].name;
+
+        const x = Phaser.Math.Between(50, this.scale.width - 50);
+        const obstacle = this.obstacles.create(x, -50, obstacleName);
+
+        //Base speed and direction
+        const baseSpeed = Phaser.Math.Between(150, 250) * this.obstacleSpeedModifier;
+        const velocityY = goingDown ? baseSpeed : -baseSpeed;
+
+        // Adjust spawn position based on direction
+        obstacle.y = goingDown ? -50 : this.scale.height + 50;
+
+        obstacle.setVelocityY(velocityY);
+        obstacle.setScale(0.3);
+        // obstacle.setRotation(Phaser.Math.FloatBetween(0, Math.PI * 2));
+        obstacle.setDepth(1);
+
+        obstacle.isGoingDown = goingDown;
+    }
+
+    spawnBonusPoints() {
+        //Randomly decide direction: up or down                
+        const goingDown = Phaser.Math.Between(0, 1) === 1;
+
+        const bonusBag = goingDown ? BONUS_POINTS_DOWN : BONUS_POINTS_UP;
+        const bonusPtsName = bonusBag[Phaser.Math.Between(0, bonusBag.length - 1)].name;
+
+        const x = Phaser.Math.Between(50, this.scale.width - 50);
+        const bonusPointsObj = this.bonusPoints.create(x, -50, bonusPtsName);
+
+        //Base speed and direction
+        const baseSpeed = Phaser.Math.Between(150, 250) * this.bonusPointsSpeedModifier;
+        const velocityY = goingDown ? baseSpeed : -baseSpeed;
+
+        // Adjust spawn position based on direction
+        bonusPointsObj.y = goingDown ? -50 : this.scale.height + 50;
+
+        bonusPointsObj.setVelocityY(velocityY);
+        bonusPointsObj.setScale(0.3);
+        // bonusPointsObj.setRotation(Phaser.Math.FloatBetween(0, Math.PI * 2));
+        bonusPointsObj.setDepth(1);
+
+        bonusPointsObj.isGoingDown = goingDown;
+    }
+
+    handleCollision(player, obstacle) {
+        if (this.isJumping) return; // ignore during jump
+
+        this.scoreActive = false;
+        this.physics.pause();
+        player.setTint(0xff0000);
+        this.gameOverText.setText("COWABUNGA! You wiped out!");
+        this.time.delayedCall(2000, () => {
+            this.cameras.main.fadeOut(500, 0, 0, 0);
+            this.cameras.main.once("camerafadeoutcomplete", () => {
+                this.scene.start("GameOverScene", { score: this.score + this.totalScore });
+            });
+        });
+    }
+
+    handlePointsCollision(player, bonusPointsObj) {
+        if (this.isJumping) return; // ignore during jump
+
+        this.bonusPoints.remove(bonusPointsObj, true, true);
+        this.totalScore = this.totalScore + this.bonusPointsValue;
+        player.setTexture("player_celebrate");
+        this.time.delayedCall(350, () => {
+            player.setTexture("player");
+        });
+    }
+
+    update(time, delta) {
+        const { width, height } = this.scale;
+
+        // Background scroll — scaled by global speed
+        this.bg.tilePositionY -= 2 * this.obstacleSpeedModifier;
+
+        // Jump key
+        if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && !this.isJumping) {
+            this.startJump();
+        }
+
+        // Player movement (disabled during jump)
+        if (!this.isJumping) {
+            const speed = 200 * this.playerSpeedModifier;
+            this.player.setVelocity(0);
+
+            if (this.cursors.left.isDown) this.player.setVelocityX(-speed);
+            else if (this.cursors.right.isDown) this.player.setVelocityX(speed);
+
+            if (this.cursors.up.isDown) this.player.setVelocityY(-speed);
+            else if (this.cursors.down.isDown) this.player.setVelocityY(speed);
+        }
+
+        // Keep player in bounds
+        this.player.y = Phaser.Math.Clamp(this.player.y, 0, height);
+
+        // Subtle surf wobble (not during jump)
+        if (!this.isJumping) {
+            this.player.rotation = Math.sin(time / 300) * 0.1;
+        }
+
+        // Increment score
+        if (this.scoreActive) {
+            this.score += 1;
+        }
+        this.scoreText.setText(`Score: ${this.score + this.totalScore}`);
+
+        this.levelText.setText(`Level: ${this.level}`);
+
+        if (!this.levelCompleteTriggered && this.score >= this.maxLevelScore) {
+            this.startLevelCompletion();
+        }
+
+        if (this.levelCompleteTriggered && this.obstacles.countActive(true) === 0 && this.bonusPoints.countActive(true) === 0) {
+            this.finishLevel();
+        }
+
+        this.obstacles.children.each((obstacle) => {
+            if (obstacle.active && (obstacle.y > this.scale.height + 50 || obstacle.y < -50)) {
+                obstacle.destroy();
+            }
+        });
+
+        this.bonusPoints.children.each((bonusObj) => {
+            if (bonusObj.active && (bonusObj.y > this.scale.height + 50 || bonusObj.y < -50)) {
+                bonusObj.destroy();
+            }
+        });
+    }
+
+    startJump() {
+        this.isJumping = true;
+        this.player.body.checkCollision.none = true; // disable collisions
+
+        // Change sprite to jump pose
+        this.player.setTexture("player_jump");
+
+        // Stop movement
+        this.player.setVelocity(0);
+
+        // Tween for scaling (jump “arc”)
+        this.tweens.add({
+            targets: this.player,
+            scale: 0.5,
+            duration: this.jumpDuration / 2,
+            yoyo: true,
+            ease: "Sine.easeInOut",
+            onComplete: () => {
+                this.endJump();
+            },
+        });
+
+        // Visual hop (up & down)
+        this.tweens.add({
+            targets: this.player,
+            y: this.player.y - 50,
+            duration: this.jumpDuration / 2,
+            yoyo: true,
+            ease: "Quad.easeOut",
+        });
+    }
+
+    endJump() {
+        this.isJumping = false;
+        this.player.body.checkCollision.none = false;
+        this.player.setTexture("player");
+        this.player.setScale(0.3);
+    }
+
+
+    startLevelCompletion() {
+        this.scoreActive = false;
+        this.levelCompleteTriggered = true;
+        this.allowSpriteSpawns = false;
+        // Optional: play "surf off" music or animation
+    }
+
+    finishLevel() {
+        console.log("All obstacles cleared, moving to next level!");
+
+        // Clean up timers
+        if (this.obstacleSpawnTimer) {
+            this.obstacleSpawnTimer.remove();
+        }
+
+        if (this.bonusPointsSpawnTimer) {
+            this.bonusPointsSpawnTimer.remove();
+        }
+
+        // Transition to LevelCompleteScene
+        this.scene.start("LevelCompleteTransitionScene", {
+            x: this.player.x,
+            y: this.player.y,
+            level: this.level,
+            score: this.score + this.totalScore,
+            scrollY: this.bg.tilePositionY
+        });
+    }
+}
