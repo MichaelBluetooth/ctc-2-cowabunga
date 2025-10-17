@@ -1,16 +1,21 @@
+import { defineConfig, loadEnv } from 'vite';
 import fs from 'fs';
-import { defineConfig } from 'vite';
 
-export default defineConfig({
-  server: {
-    https: {
-      key: fs.readFileSync('./localhost+2-key.pem'),
-      cert: fs.readFileSync('./localhost+2.pem')
+export default defineConfig(({ mode }) => {
+  // Explicitly load .env files for the current mode
+  const env = loadEnv(mode, process.cwd(), '');
+
+  return {
+    server: {
+      https: {
+        key: fs.readFileSync('./localhost+2-key.pem'),
+        cert: fs.readFileSync('./localhost+2.pem')
+      },
+      host: '0.0.0.0',
     },
-    host: '0.0.0.0', // Listen on all network interfaces
-  },
-  base: process.env.VITE_BASE_URL || '/',
-  build: {
-    outDir: 'dist',
-  }
+    base: env.VITE_BASE_URL || '/aaaaaaaaaaa',
+    build: {
+      outDir: 'dist',
+    }
+  };
 });
