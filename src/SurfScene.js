@@ -33,7 +33,54 @@ export default class SurfScene extends Phaser.Scene {
         const { width, height } = this.scale;
         this.maxLevelScore = 750;
         this.scoreActive = true;
+        this.allowMovement = true;
         this.bonusPointsValue = 250;
+
+        if (this.game.globals.tiltAvailable) {
+            window.addEventListener("deviceorientation", (event) => {
+                // event.gamma is left/right tilt in degrees (-90 to +90)
+                this.tiltX = event.gamma || 0;
+                this.tiltY = event.beta || 0;
+            });
+
+            let lastX, lastY, lastZ;
+            let lastUpdate = 0;
+            let shakeThreshold = 15; // adjust for sensitivity
+            let shakeCooldown = 1000; // minimum time between shakes in ms
+            let lastShakeTime = 0;
+            window.addEventListener('devicemotion', (event) => {
+                const acceleration = event.accelerationIncludingGravity;
+
+                if (!acceleration.x || !acceleration.y || !acceleration.z) return;
+
+                const currentTime = Date.now();
+                const deltaTime = currentTime - lastUpdate;
+
+                if (deltaTime > 100) { // update roughly every 100ms
+                    const deltaX = Math.abs(acceleration.x - (lastX || 0));
+                    const deltaY = Math.abs(acceleration.y - (lastY || 0));
+                    const deltaZ = Math.abs(acceleration.z - (lastZ || 0));
+
+                    if ((deltaX + deltaY + deltaZ) > shakeThreshold) {
+                        if (currentTime - lastShakeTime > shakeCooldown) {
+                            lastShakeTime = currentTime;
+                            this.startJump();
+                        }
+                    }
+
+                    lastX = acceleration.x;
+                    lastY = acceleration.y;
+                    lastZ = acceleration.z;
+                    lastUpdate = currentTime;
+                }
+            });
+        }
+
+        // Tilt setup
+        this.tiltX = 0; // current tilt value
+        this.tiltY = 0; // current tilt value
+        this.smoothedTiltX = 0; // smoothed for stability
+        this.smoothedTiltY = 0; // smoothed for stability
 
         // 🎚️ Level modifiers
         this.playerSpeedModifier = 1.5 + (this.level - 1) * 0.05;
@@ -190,6 +237,7 @@ export default class SurfScene extends Phaser.Scene {
         if (this.isJumping) return; // ignore during jump
 
         this.scoreActive = false;
+        this.allowMovement = false;
         this.physics.pause();
         player.setTint(0xff0000);
         this.gameOverText.setText("COWABUNGA! You wiped out!");
@@ -224,15 +272,30 @@ export default class SurfScene extends Phaser.Scene {
         }
 
         // Player movement (disabled during jump)
-        if (!this.isJumping) {
+        if (!this.isJumping && this.allowMovement) {
             const speed = 200 * this.playerSpeedModifier;
             this.player.setVelocity(0);
 
-            if (this.cursors.left.isDown) this.player.setVelocityX(-speed);
-            else if (this.cursors.right.isDown) this.player.setVelocityX(speed);
+            if (this.game.globals.tiltAvailable) {
+                this.smoothedTiltX = Phaser.Math.Linear(this.smoothedTiltX, this.tiltX, 0.1);
+                this.smoothedTiltY = Phaser.Math.Linear(this.smoothedTiltY, this.tiltY, 0.1);
+                const tiltSensitivityX = 0.5; // adjust for feel
+                const tiltSensitivityY = 0.3; // adjust for feel
+                let moveX = this.smoothedTiltX * tiltSensitivityX;
+                let moveY = this.smoothedTiltY * tiltSensitivityY;
 
-            if (this.cursors.up.isDown) this.player.setVelocityY(-speed);
-            else if (this.cursors.down.isDown) this.player.setVelocityY(speed);
+                this.player.x += moveX * this.playerSpeedModifier;
+                this.player.x = Phaser.Math.Clamp(this.player.x, 40, this.scale.width - 40);
+
+                this.player.y += moveY * this.playerSpeedModifier;
+                this.player.y = Phaser.Math.Clamp(this.player.y, 40, this.scale.height - 40);
+            } else {
+                if (this.cursors.left.isDown) this.player.setVelocityX(-speed);
+                else if (this.cursors.right.isDown) this.player.setVelocityX(speed);
+
+                if (this.cursors.up.isDown) this.player.setVelocityY(-speed);
+                else if (this.cursors.down.isDown) this.player.setVelocityY(speed);
+            }
         }
 
         // Keep player in bounds
