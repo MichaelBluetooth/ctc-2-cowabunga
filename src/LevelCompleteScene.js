@@ -9,8 +9,8 @@ export default class LevelCompleteScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image("level-bg", "assets/content/level-complete-bg.png");
-    this.load.image("next-button", "assets/content/next-button.png");
+    this.load.image("level-bg", "/assets/content/level-complete-bg.png");
+    this.load.image("next-button", "/assets/content/next-button.png");
   }
 
   create() {

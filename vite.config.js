@@ -9,4 +9,8 @@ export default defineConfig({
     },
     host: '0.0.0.0', // Listen on all network interfaces
   },
+  base: 'ctc-2-cowabunga',
+  build: {
+    outDir: 'dist',
+  }
 });

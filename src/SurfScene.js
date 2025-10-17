@@ -23,10 +23,10 @@ export default class SurfScene extends Phaser.Scene {
             this.load.image(obst.name, obst.file);
         }
 
-        this.load.image("background", "assets/content/background.png");
-        this.load.image("player", "assets/content/player.png");
-        this.load.image("player_jump", "assets/content/player_jump.png");
-        this.load.image("player_celebrate", "assets/content/player_celebrate.png");
+        this.load.image("background", "/assets/content/background.png");
+        this.load.image("player", "/assets/content/player.png");
+        this.load.image("player_jump", "/assets/content/player_jump.png");
+        this.load.image("player_celebrate", "/assets/content/player_celebrate.png");
     }
 
     create() {
