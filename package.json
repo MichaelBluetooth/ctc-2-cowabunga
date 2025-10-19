@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "vite --host",
-    "build": "vite build",
+    "start": "vite --host --mode dev",
+    "build:web": "vite build --mode web",
+    "build:android": "vite build --mode android",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
     "phaser": "^3.80.0"
   },
   "devDependencies": {

@@ -1,1 +1,33 @@
 /node_modules
+
+/keystore
+
+# Android: ignore build outputs, local config, IDE metadata and generated assets
+# Keep these out of git to reduce repo size and avoid committing machine-specific files.
+/android/.gradle/
+/android/build/
+/android/**/build/
+/android/local.properties
+/android/*.log
+/android/.idea/
+/android/*.iml
+/android/captures/
+/android/.externalNativeBuild
+/android/.cxx/
+/android/capacitor-cordova-android-plugins/
+/android/app/src/main/assets/public/
+/android/app/src/main/assets/capacitor.config.json
+/android/app/src/main/assets/capacitor.plugins.json
+/android/app/src/main/res/xml/config.xml
+
+# Gradle/IDE/project files (catch any at repo root too)
+/.gradle/
+/build/
+.idea/
+.vscode/
+
+# Common OS/Editor
+.DS_Store
+Thumbs.db
+*.log
+

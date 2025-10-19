@@ -25,7 +25,7 @@ export default class GameCompleteScene extends Phaser.Scene {
         this.add
             .text(width / 2, height / 1.4, `Score: ${this.finalScore}`, {
                 fontFamily: "Impact",
-                fontSize: 75,
+                fontSize: 55,
                 color: "#ffff00",
                 stroke: "#000",
                 strokeThickness: 6,
@@ -36,11 +36,11 @@ export default class GameCompleteScene extends Phaser.Scene {
         const retryButton = this.add
             .image(width / 2, height / 1.2, "retry-button")
             .setInteractive()
-            .setScale(1.5);
+            .setScale(1);
 
 
-        retryButton.on("pointerover", () => retryButton.setScale(.9));
-        retryButton.on("pointerout", () => retryButton.setScale(.8));
+        retryButton.on("pointerover", () => retryButton.setScale(1));
+        retryButton.on("pointerout", () => retryButton.setScale(1));
 
         retryButton.on("pointerdown", () => {
             this.scene.stop('SurfScene');

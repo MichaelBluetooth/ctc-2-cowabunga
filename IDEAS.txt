@@ -37,9 +37,19 @@ SPRITES (COWS)
 - Tubing cow (always going up)
 
 
-PLAN:
-1. Title screen, 5 levels, final score presentation
-2. Limit jumps to 3
-3. Bonus scoring by catching cows
-4. Add buffs
-5. Add debuffs
+
+Thoughts:
+- Make first level a little slower and scale from there. Allow the user to clearly see what's a cow vs what's an obstacle.
+- It's a little hard to jump, but there's not enough incentive until later when the game is hard
+- Maybe bonus points for jumping over an object?
+- Store and show top 5 scores
+- Need an "instructions" screen so people know how to play. When the user hits "play" the first time, they should be forced to this screen.
+- Scoring could be cooler and more exciting. Idea:
+    - SurfScene shows a progress so the user knows when the level will end
+    - LevelCompleteScene should a summary of points
+        - Level Complete
+        - Cows Caught
+        - Obstacles Jumped
+        - Etc...
+ 
+    

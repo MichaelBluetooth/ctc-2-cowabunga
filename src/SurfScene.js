@@ -31,7 +31,7 @@ export default class SurfScene extends Phaser.Scene {
 
     create() {
         const { width, height } = this.scale;
-        this.maxLevelScore = 750;
+        this.maxLevelScore = 1000;
         this.scoreActive = true;
         this.allowMovement = true;
         this.bonusPointsValue = 250;
@@ -89,16 +89,15 @@ export default class SurfScene extends Phaser.Scene {
 
         this.scoreText = this.add.text(10, 10, `Score: ${this.score + this.totalScore}`, {
             fontFamily: "Arial",
-            fontSize: 75,
+            fontSize: 25,
             color: "#ffff66",
             stroke: "#000000",
             strokeThickness: 3,
         }).setDepth(1);
 
-        // 🏄 Level display (just under the score)
-        this.levelText = this.add.text(10, 100, `Level: ${this.level}`, {
+        this.levelText = this.add.text(10, 50, `Level: ${this.level}`, {
             fontFamily: "Arial",
-            fontSize: 75,
+            fontSize: 25,
             color: "#ffff66",
             stroke: "#000000",
             strokeThickness: 3,
@@ -113,7 +112,7 @@ export default class SurfScene extends Phaser.Scene {
         // Player setup
         this.player = this.physics.add.sprite(width / 2, height * 0.2, "player");
         this.player.setCollideWorldBounds(true);
-        this.player.setScale(1);
+        this.player.setScale(.6);
         this.player.setAngle(180); // facing downward
         this.player.setDepth(10);
 
@@ -180,7 +179,7 @@ export default class SurfScene extends Phaser.Scene {
 
         this.gameOverText = this.add
             .text(width / 2, height / 2, "", {
-                fontSize: "32px",
+                fontSize: "22px",
                 fill: "#fff",
                 fontFamily: "sans-serif",
             })
@@ -208,7 +207,7 @@ export default class SurfScene extends Phaser.Scene {
         obstacle.y = goingDown ? -50 : this.scale.height + 50;
 
         obstacle.setVelocityY(velocityY);
-        obstacle.setScale(1);
+        obstacle.setScale(.6);
         // obstacle.setRotation(Phaser.Math.FloatBetween(0, Math.PI * 2));
         obstacle.setDepth(1);
 
@@ -235,7 +234,7 @@ export default class SurfScene extends Phaser.Scene {
         bonusPointsObj.y = goingDown ? -50 : this.scale.height + 50;
 
         bonusPointsObj.setVelocityY(velocityY);
-        bonusPointsObj.setScale(1);
+        bonusPointsObj.setScale(.6);
         // bonusPointsObj.setRotation(Phaser.Math.FloatBetween(0, Math.PI * 2));
         bonusPointsObj.setDepth(1);
 
@@ -281,15 +280,14 @@ export default class SurfScene extends Phaser.Scene {
         }
 
         // Player movement (disabled during jump)
-        if (!this.isJumping && this.allowMovement) {
-            const speed = 200 * this.playerSpeedModifier;
+        if (this.allowMovement) {
             this.player.setVelocity(0);
 
             if (this.game.globals.tiltAvailable) {
                 this.smoothedTiltX = Phaser.Math.Linear(this.smoothedTiltX, this.tiltX, 0.1);
                 this.smoothedTiltY = Phaser.Math.Linear(this.smoothedTiltY, this.tiltY, 0.1);
-                const tiltSensitivityX = 0.5; // adjust for feel
-                const tiltSensitivityY = 0.3; // adjust for feel
+                const tiltSensitivityX = this.isJumping ? 0.2 : 0.4; // adjust for feel
+                const tiltSensitivityY = this.isJumping ? 0.3 : 0.3; // adjust for feel
                 let moveX = this.smoothedTiltX * tiltSensitivityX;
                 let moveY = this.smoothedTiltY * tiltSensitivityY;
 
@@ -300,6 +298,7 @@ export default class SurfScene extends Phaser.Scene {
                 this.player.y = Phaser.Math.Clamp(this.player.y, 40, this.scale.height - 40);
             }
 
+            const speed = (this.isJumping ? 125 : 200) * this.playerSpeedModifier;
             if (this.cursors.left.isDown) this.player.setVelocityX(-speed);
             else if (this.cursors.right.isDown) this.player.setVelocityX(speed);
 
@@ -352,12 +351,12 @@ export default class SurfScene extends Phaser.Scene {
         this.player.setTexture("player_jump");
 
         // Stop movement
-        this.player.setVelocity(0);
+        // this.player.setVelocity(0);
 
         // Tween for scaling (jump “arc”)
         this.tweens.add({
             targets: this.player,
-            scale: 1.6,
+            scale: 1.2,
             duration: this.jumpDuration / 2,
             yoyo: true,
             ease: "Sine.easeInOut",
@@ -380,7 +379,7 @@ export default class SurfScene extends Phaser.Scene {
         this.isJumping = false;
         this.player.body.checkCollision.none = false;
         this.player.setTexture("player");
-        this.player.setScale(1);
+        this.player.setScale(.6);
     }
 
 

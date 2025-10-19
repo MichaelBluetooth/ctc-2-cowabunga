@@ -30,7 +30,7 @@ export default class LevelCompleteTransitionScene extends Phaser.Scene {
     // 🏄 Add player at last known position
     this.player = this.physics.add.sprite(this.startX, this.startY, "player");
     this.player.setDepth(10);
-    this.player.setScale(1);
+    this.player.setScale(.6);
 
     // Disable controls by not attaching input handlers
     this.physics.world.gravity.y = 0;
@@ -53,28 +53,30 @@ export default class LevelCompleteTransitionScene extends Phaser.Scene {
 
     this.scoreText = this.add.text(10, 10, `Score: ${this.score}`, {
       fontFamily: "Arial",
-      fontSize: 75,
+      fontSize: 25,
       color: "#ffff66",
       stroke: "#000000",
       strokeThickness: 3,
     }).setDepth(1);
 
-    // 🏄 Level display (just under the score)
-    this.levelText = this.add.text(10, 100, `Level: ${this.level}`, {
+    this.levelText = this.add.text(10, 50, `Level: ${this.level}`, {
       fontFamily: "Arial",
-      fontSize: 75,
+      fontSize: 25,
       color: "#ffff66",
       stroke: "#000000",
       strokeThickness: 3,
     }).setDepth(1);
 
 
-    const beach = this.add.image(width, height, 'beach');
-    beach.x = width / 2;
+    const beach = this.add.image(width, height+175, 'beach');
+    beach.displayWidth = width*2
+    ;
+    beach.displayHeight = 400;
+    beach.x = width;
 
     this.tweens.add({
       targets: beach,
-      y: height - 325,
+      y: height - 175,
       duration: 1500,
       ease: 'Sine.easeOut',
       delay: 350,

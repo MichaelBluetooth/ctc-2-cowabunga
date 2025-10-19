@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Catch That Cow 2: Cowabunga</string>
+    <string name="title_activity_main">Catch That Cow 2: Cowabunga</string>
+    <string name="package_name">com.catchthatcow.cowabunga</string>
+    <string name="custom_url_scheme">com.catchthatcow.cowabunga</string>
+</resources>

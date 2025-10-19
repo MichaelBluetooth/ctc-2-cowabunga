@@ -1,26 +1,57 @@
+import { SettingsManager } from "./SettingsManager";
+
 export default class TitleScene extends Phaser.Scene {
   constructor() {
     super("TitleScene");
   }
 
   preload() {
-    // Load any assets used on the title screen
     this.load.image("title-bg", "assets/content/title-bg.png");
     this.load.image("play-button", "assets/content/play-button.png");
+    this.load.image("enable-music-button", "assets/content/enable-music-button.png");
+    this.load.image("disable-music-button", "assets/content/disable-music-button.png");
 
     this.load.audio('bgMusic', 'assets/content/Totally_Tubular_Vibes.mp3');
   }
 
   create() {
     if (!this.game.globals) {
-      this.game.globals = {}; // store global references
+      this.game.globals = {};
       this.game.globals.tiltAvailable = false;
     }
 
+    const initialSettings = SettingsManager.loadSettings();
+
     if (!this.game.globals.music) {
       this.game.globals.music = this.sound.add('bgMusic', { loop: true, volume: 0.5 });
+
       this.game.globals.music.play();
+      if (!initialSettings.musicEnabled) {
+        this.game.globals.music.pause();
+      }
     }
+
+    this.game.events.on(Phaser.Core.Events.BLUR, () => {
+      this.game.globals.music.pause();
+    });
+    this.game.events.on(Phaser.Core.Events.FOCUS, () => {
+      const settings = SettingsManager.loadSettings();
+      if (settings.musicEnabled) {
+        this.game.globals.music.play();
+      }
+    });
+
+    //handles some events where user rapidly switches apps
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        this.game.globals.music.pause();
+      } else {
+        const settings = SettingsManager.loadSettings();
+        if (settings.musicEnabled) {
+          this.game.globals.music.play();
+        }
+      }
+    });
 
     const { width, height } = this.scale;
 
@@ -29,15 +60,34 @@ export default class TitleScene extends Phaser.Scene {
     bg.displayWidth = this.scale.width;
     bg.displayHeight = this.scale.height;
 
-    // 🎮 Play button
     const playButton = this.add
       .image(width / 2, height / 1.2, "play-button")
       .setInteractive()
-      .setScale(1.5);
+      .setScale(1);
+
+
+    const musicButtonScale = .30
+    const musicButton = this.add
+      .image(width - 35, 35, initialSettings.musicEnabled ? "enable-music-button" : "disable-music-button")
+      .setInteractive()
+      .setScale(musicButtonScale);
+
+    musicButton.on('pointerdown', () => {
+      const musicEnabled = SettingsManager.toggleMusic();
+      if (musicEnabled) {
+        musicButton.setTexture("enable-music-button").setScale(musicButtonScale);
+        this.game.globals.music.resume();
+      } else {
+        musicButton.setTexture("disable-music-button").setScale(musicButtonScale);
+        this.game.globals.music.pause();
+      }
+    });
 
     // Add hover feedback (optional)
-    playButton.on("pointerover", () => playButton.setScale(1.6));
-    playButton.on("pointerout", () => playButton.setScale(1.5));
+    playButton.on("pointerover", () => playButton.setScale(1.1));
+    playButton.on("pointerout", () => playButton.setScale(1));
+    musicButton.on("pointerover", () => musicButton.setScale(musicButtonScale + .1));
+    musicButton.on("pointerout", () => musicButton.setScale(musicButtonScale));
 
     // Start the game
     playButton.on("pointerdown", () => {

@@ -15,14 +15,17 @@ window.addEventListener("orientationchange", () => {
     }
 });
 
+const GAME_HEIGHT = 915;
+const GAME_WIDTH = 412;
+
 const config = {
     type: Phaser.AUTO,
     scale: {
-        mode: Phaser.Scale.RESIZE,   // <– dynamically match window size
+        mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: window.innerWidth,
-        height: window.innerHeight,
     },
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
     backgroundColor: "#00bfff",
     physics: {
         default: "arcade",
