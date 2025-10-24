@@ -48,7 +48,7 @@ export default class LevelCompleteScene extends Phaser.Scene {
     this.add
       .text(55, height / 1.8, `Level Complete:`, {
         fontFamily: "Impact",
-        fontSize: 25,
+        fontSize: 22,
         color: "#ffff00",
         stroke: "#000",
         strokeThickness: 6,
@@ -58,7 +58,7 @@ export default class LevelCompleteScene extends Phaser.Scene {
       this.add
         .text(235, height / 1.8, POINTS.levelCompletePoints, {
           fontFamily: "Impact",
-          fontSize: 25,
+          fontSize: 22,
           color: "#ffff00",
           stroke: "#000",
           strokeThickness: 6,
@@ -82,7 +82,7 @@ export default class LevelCompleteScene extends Phaser.Scene {
       this.add
         .text(235, height / 1.68, `${POINTS.pointsPerCowCaught} x ${this.cowsCaught}`, {
           fontFamily: "Impact",
-          fontSize: 25,
+          fontSize: 22,
           color: "#ffff00",
           stroke: "#000",
           strokeThickness: 6,
@@ -96,7 +96,7 @@ export default class LevelCompleteScene extends Phaser.Scene {
       this.add
         .text(235, height / 1.58, `${POINTS.pointsPerJumpedObstacle} x ${this.objectsJumpedOver}`, {
           fontFamily: "Impact",
-          fontSize: 25,
+          fontSize: 22,
           color: "#ffff00",
           stroke: "#000",
           strokeThickness: 6,
@@ -109,7 +109,7 @@ export default class LevelCompleteScene extends Phaser.Scene {
     this.add
       .text(78, height / 1.68, `Cows Caught:`, {
         fontFamily: "Impact",
-        fontSize: 25,
+        fontSize: 22,
         color: "#ffff00",
         stroke: "#000",
         strokeThickness: 6,
@@ -118,7 +118,7 @@ export default class LevelCompleteScene extends Phaser.Scene {
     this.add
       .text(32, height / 1.58, `Obscales Jumped:`, {
         fontFamily: "Impact",
-        fontSize: 25,
+        fontSize: 22,
         color: "#ffff00",
         stroke: "#000",
         strokeThickness: 6,
@@ -136,7 +136,7 @@ export default class LevelCompleteScene extends Phaser.Scene {
       nextButton.on("pointerdown", () => {
         this.scene.start("SurfScene", {
           level: this.level + 1,
-          totalScore: this.score
+          score: this.score
         });
       });
     });

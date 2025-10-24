@@ -52,26 +52,9 @@ export default class LevelCompleteTransitionScene extends Phaser.Scene {
     // Fade in
     // this.cameras.main.fadeIn(500, 0, 0, 0);
 
-    this.scoreText = this.add.text(10, 10, `Score: ${this.score}`, {
-      fontFamily: "Arial",
-      fontSize: 25,
-      color: "#ffff66",
-      stroke: "#000000",
-      strokeThickness: 3,
-    }).setDepth(1);
-
-    this.levelText = this.add.text(10, 50, `Level: ${this.level}`, {
-      fontFamily: "Arial",
-      fontSize: 25,
-      color: "#ffff66",
-      stroke: "#000000",
-      strokeThickness: 3,
-    }).setDepth(1);
-
 
     const beach = this.add.image(width, height + 175, 'beach');
-    beach.displayWidth = width * 2
-      ;
+    beach.displayWidth = width * 2;
     beach.displayHeight = 400;
     beach.x = width;
 
