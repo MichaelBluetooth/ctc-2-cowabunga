@@ -1,4 +1,7 @@
 import { BONUS_POINTS, BONUS_POINTS_DOWN, BONUS_POINTS_UP, OBSTACLES, OBSTACLES_DOWN, OBSTACLES_UP } from "./Assets";
+import { CATCH_PHRASES } from './Constants';
+import { POINTS } from "./Constants";
+import { ProgressBar } from './Progressbar';
 
 export default class SurfScene extends Phaser.Scene {
     constructor() {
@@ -8,7 +11,9 @@ export default class SurfScene extends Phaser.Scene {
     init(data) {
         this.level = data.level || 1;
         this.score = data.score || 0;
-        this.totalScore = data.totalScore || 0;
+
+        this.objectsJumpedOver = 0;
+        this.cowsCaught = 0;
 
         this.levelCompleteTriggered = false;
         this.allowSpriteSpawns = true;
@@ -31,12 +36,13 @@ export default class SurfScene extends Phaser.Scene {
 
     create() {
         const { width, height } = this.scale;
-        this.maxLevelScore = 1000;
+        this.maxLevelScore = POINTS.levelCompletePoints;
         this.scoreActive = true;
         this.allowMovement = true;
-        this.bonusPointsValue = 250;
 
-        if (this.game.globals.tiltAvailable) {
+        this.progressBar = new ProgressBar(this, 110, 35, width / 1.5, 20);
+
+        if (this.game.globals?.tiltAvailable) {
             window.addEventListener("deviceorientation", (event) => {
                 // event.gamma is left/right tilt in degrees (-90 to +90)
                 this.tiltX = event.gamma || 0;
@@ -87,15 +93,7 @@ export default class SurfScene extends Phaser.Scene {
         this.obstacleSpeedModifier = 1.5 + (this.level - 1) * 0.25;
         this.bonusPointsSpeedModifier = 1.5 + (this.level - 1) * 0.15;
 
-        this.scoreText = this.add.text(10, 10, `Score: ${this.score + this.totalScore}`, {
-            fontFamily: "Arial",
-            fontSize: 25,
-            color: "#ffff66",
-            stroke: "#000000",
-            strokeThickness: 3,
-        }).setDepth(1);
-
-        this.levelText = this.add.text(10, 50, `Level: ${this.level}`, {
+        this.levelText = this.add.text(10, 20, `Level: ${this.level}`, {
             fontFamily: "Arial",
             fontSize: 25,
             color: "#ffff66",
@@ -118,7 +116,7 @@ export default class SurfScene extends Phaser.Scene {
 
         // //shrink the hitbox a bit
         const radius = this.player.body.width * .40;
-        this.player.body.setCircle(radius, this.player.body.width / 2 - radius, this.player.body.height / 2 - radius);        
+        this.player.body.setCircle(radius, this.player.body.width / 2 - radius, this.player.body.height / 2 - radius);
 
         // Controls
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -174,8 +172,7 @@ export default class SurfScene extends Phaser.Scene {
         this.jumpDuration = 1500;
 
         // UI
-        this.score = 0;
-        this.scoreText.setScrollFactor(0);
+        this.progress = 0;
 
         this.gameOverText = this.add
             .text(width / 2, height / 2, "", {
@@ -212,6 +209,7 @@ export default class SurfScene extends Phaser.Scene {
         obstacle.setDepth(1);
 
         obstacle.isGoingDown = goingDown;
+        obstacle.jumpedOver = false;
     }
 
     spawnBonusPoints() {
@@ -242,30 +240,43 @@ export default class SurfScene extends Phaser.Scene {
     }
 
     handleCollision(player, obstacle) {
-        if (this.isJumping) return; // ignore during jump
-
-        this.scoreActive = false;
-        this.allowMovement = false;
-        this.physics.pause();
-        player.setTint(0xff0000);
-        this.gameOverText.setText("COWABUNGA! You wiped out!");
-        this.time.delayedCall(2000, () => {
-            this.cameras.main.fadeOut(500, 0, 0, 0);
-            this.cameras.main.once("camerafadeoutcomplete", () => {
-                this.scene.start("GameOverScene", { score: this.score + this.totalScore });
+        // If jumping → no damage, but mark obstacle as "cleared"
+        if (this.isJumping) {
+            if (!obstacle.wasJumpCleared) {
+                console.log('JUMPED!!');
+                obstacle.wasJumpCleared = true; // prevent double count
+                this.addJumpBonus(obstacle);
+            }
+            return;
+        } else {
+            this.scoreActive = false;
+            this.allowMovement = false;
+            this.physics.pause();
+            player.setTint(0xff0000);
+            this.gameOverText.setText("COWABUNGA! You wiped out!");
+            this.time.delayedCall(2000, () => {
+                this.cameras.main.fadeOut(500, 0, 0, 0);
+                this.cameras.main.once("camerafadeoutcomplete", () => {
+                    this.scene.start("GameOverScene", {
+                        score: this.score,
+                        progress: this.progress,
+                        cowsCaught: this.cowsCaught,
+                        objectsJumpedOver: this.objectsJumpedOver
+                    });
+                });
             });
-        });
+        }
     }
 
     handlePointsCollision(player, bonusPointsObj) {
         if (this.isJumping) return; // ignore during jump
 
         this.bonusPoints.remove(bonusPointsObj, true, true);
-        this.totalScore = this.totalScore + this.bonusPointsValue;
         player.setTexture("player_celebrate");
         this.time.delayedCall(350, () => {
             player.setTexture("player");
         });
+        this.cowsCaught++;
     }
 
     update(time, delta) {
@@ -283,7 +294,7 @@ export default class SurfScene extends Phaser.Scene {
         if (this.allowMovement) {
             this.player.setVelocity(0);
 
-            if (this.game.globals.tiltAvailable) {
+            if (this.game.globals?.tiltAvailable) {
                 this.smoothedTiltX = Phaser.Math.Linear(this.smoothedTiltX, this.tiltX, 0.1);
                 this.smoothedTiltY = Phaser.Math.Linear(this.smoothedTiltY, this.tiltY, 0.1);
                 const tiltSensitivityX = this.isJumping ? 0.2 : 0.4; // adjust for feel
@@ -314,20 +325,15 @@ export default class SurfScene extends Phaser.Scene {
             this.player.rotation = Math.sin(time / 300) * 0.1;
         }
 
-        // Increment score
-        if (this.scoreActive) {
-            this.score += 1;
-        }
-        this.scoreText.setText(`Score: ${this.score + this.totalScore}`);
-
         this.levelText.setText(`Level: ${this.level}`);
 
-        if (!this.levelCompleteTriggered && this.score >= this.maxLevelScore) {
+        if (!this.levelCompleteTriggered && this.progress >= this.maxLevelScore) {
             this.startLevelCompletion();
-        }
-
-        if (this.levelCompleteTriggered && this.obstacles.countActive(true) === 0 && this.bonusPoints.countActive(true) === 0) {
+        } else if (this.levelCompleteTriggered && this.obstacles.countActive(true) === 0 && this.bonusPoints.countActive(true) === 0) {
             this.finishLevel();
+        } else if (this.allowMovement) {
+            this.progress++;
+            this.progressBar.setProgress(this.progress / this.maxLevelScore);
         }
 
         this.obstacles.children.each((obstacle) => {
@@ -345,7 +351,7 @@ export default class SurfScene extends Phaser.Scene {
 
     startJump() {
         this.isJumping = true;
-        this.player.body.checkCollision.none = true; // disable collisions
+        // this.player.body.checkCollision.none = true; // disable collisions
 
         // Change sprite to jump pose
         this.player.setTexture("player_jump");
@@ -407,8 +413,27 @@ export default class SurfScene extends Phaser.Scene {
             x: this.player.x,
             y: this.player.y,
             level: this.level,
-            score: this.score + this.totalScore,
-            scrollY: this.bg.tilePositionY
+            score: this.score,
+            scrollY: this.bg.tilePositionY,
+            cowsCaught: this.cowsCaught,
+            objectsJumpedOver: this.objectsJumpedOver
+        });
+    }
+
+    addJumpBonus(obstacle) {
+        this.objectsJumpedOver++;
+
+        const phrase = CATCH_PHRASES[Phaser.Math.Between(0, CATCH_PHRASES.length)];
+        const bonusText = this.add.text(this.player.x, this.player.y - 50, phrase, {
+            fontSize: "32px",
+            color: "#ffff00",
+        }).setOrigin(0.5).setDepth(1000);
+        this.tweens.add({
+            targets: bonusText,
+            y: bonusText.y - 50,
+            alpha: 0,
+            duration: 800,
+            onComplete: () => bonusText.destroy(),
         });
     }
 }

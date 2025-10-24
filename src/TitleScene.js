@@ -1,4 +1,5 @@
 import { SettingsManager } from "./SettingsManager";
+import { ScoreManager } from './ScoreManager';
 
 export default class TitleScene extends Phaser.Scene {
   constructor() {
@@ -65,7 +66,6 @@ export default class TitleScene extends Phaser.Scene {
       .setInteractive()
       .setScale(1);
 
-
     const musicButtonScale = .30
     const musicButton = this.add
       .image(width - 35, 35, initialSettings.musicEnabled ? "enable-music-button" : "disable-music-button")
@@ -82,6 +82,28 @@ export default class TitleScene extends Phaser.Scene {
         this.game.globals.music.pause();
       }
     });
+
+    const scores = ScoreManager.loadScores();
+    if (scores.length > 0) {
+      this.add.text(width / 2, 240, "🏆 High Scores 🏆", {
+        fontFamily: "Impact",
+        fontSize: 25,
+        color: "#ffff00",
+        stroke: "#000",
+        strokeThickness: 6,
+      }).setOrigin(0.5);
+
+
+      scores.forEach((score, i) => {
+        this.add.text(width / 2, 275 + i * 25, `${i + 1}. ${score}`, {
+          fontFamily: "Impact",
+          fontSize: 20,
+          color: "#ffff00",
+          stroke: "#000",
+          strokeThickness: 6,
+        }).setOrigin(0.5);
+      });
+    }
 
     // Add hover feedback (optional)
     playButton.on("pointerover", () => playButton.setScale(1.1));

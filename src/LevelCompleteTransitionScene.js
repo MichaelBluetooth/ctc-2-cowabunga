@@ -1,3 +1,5 @@
+import { GAME_VARS } from './Constants';
+
 export default class LevelCompleteTransitionScene extends Phaser.Scene {
   constructor() {
     super("LevelCompleteTransitionScene");
@@ -10,7 +12,8 @@ export default class LevelCompleteTransitionScene extends Phaser.Scene {
     this.level = data.level || 1;
     this.score = data.score || 0;
     this.scrollY = data.scrollY || 0;
-    this.nextScene = data.nextScene || 'SurfScene';
+    this.objectsJumpedOver = data.objectsJumpedOver || 0;
+    this.cowsCaught = data.cowsCaught || 0;
   }
 
   preload() {
@@ -22,12 +25,10 @@ export default class LevelCompleteTransitionScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
 
-    // 🏖️ Add scrolling background
     this.bg = this.add.tileSprite(0, 0, width, height, 'shore-bg');
     this.bg.setOrigin(0, 0);
     this.bg.tilePositionY = this.scrollY;
 
-    // 🏄 Add player at last known position
     this.player = this.physics.add.sprite(this.startX, this.startY, "player");
     this.player.setDepth(10);
     this.player.setScale(.6);
@@ -68,9 +69,9 @@ export default class LevelCompleteTransitionScene extends Phaser.Scene {
     }).setDepth(1);
 
 
-    const beach = this.add.image(width, height+175, 'beach');
-    beach.displayWidth = width*2
-    ;
+    const beach = this.add.image(width, height + 175, 'beach');
+    beach.displayWidth = width * 2
+      ;
     beach.displayHeight = 400;
     beach.x = width;
 
@@ -97,13 +98,19 @@ export default class LevelCompleteTransitionScene extends Phaser.Scene {
         this.cameras.main.resetFX(); // clears fade/tint effects
         this.time.removeAllEvents();
         this.cameras.main.once("camerafadeoutcomplete", () => {
-          if (this.level < 5) {
+          if (this.level < GAME_VARS.totalLevels) {
             this.scene.start("LevelCompleteScene", {
               level: this.level,
               score: this.score,
+              cowsCaught: this.cowsCaught,
+              objectsJumpedOver: this.objectsJumpedOver
             });
           } else {
-            this.scene.start("GameCompleteScene", { score: this.score });
+            this.scene.start("GameCompleteScene", {
+              score: this.score, score: this.score,
+              cowsCaught: this.cowsCaught,
+              objectsJumpedOver: this.objectsJumpedOver
+            });
           }
         });
         this.cameras.main.fadeOut(500, 0, 0, 0);
