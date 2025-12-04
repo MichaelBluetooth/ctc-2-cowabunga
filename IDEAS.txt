@@ -40,18 +40,8 @@ SPRITES (COWS)
 
 Thoughts:
 - Make first level a little slower and scale from there. Allow the user to clearly see what's a cow vs what's an obstacle.
-- It's a little hard to jump, but there's not enough incentive until later when the game is hard
-- Maybe bonus points for jumping over an object?
-- Store and show top 5 scores
 - Level length should be its own variable measured in milliseconds or seconds. NOT dependent on the points-per-level.
-- Volume slider
 - Need an "instructions" screen so people know how to play. When the user hits "play" the first time, they should be forced to this screen.
-- Scoring could be cooler and more exciting. Idea:
-    - SurfScene shows a progress so the user knows when the level will end
-    - LevelCompleteScene should a summary of points
-        - Level Complete
-        - Cows Caught
-        - Obstacles Jumped
-        - Etc...
- 
-    
+- Tutorial level: have the player hold the phone steady, then catch certain flags
+    - Tutorial should be required if the user has never played
+- On the points screen, when the user taps the screen it should immediately finish summarizing the points. I noticed people tapping the screen to make it go faster so they could proceed.

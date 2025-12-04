@@ -67,7 +67,7 @@ export default class SurfScene extends Phaser.Scene {
                     const deltaY = Math.abs(acceleration.y - (lastY || 0));
                     const deltaZ = Math.abs(acceleration.z - (lastZ || 0));
 
-                    if ((deltaX + deltaY + deltaZ) > shakeThreshold) {
+                    if ((deltaX + deltaY + deltaZ) > shakeThreshold && this.allowMovement) {
                         if (currentTime - lastShakeTime > shakeCooldown) {
                             lastShakeTime = currentTime;
                             this.startJump();

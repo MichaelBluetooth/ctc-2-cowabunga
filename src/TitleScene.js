@@ -9,6 +9,7 @@ export default class TitleScene extends Phaser.Scene {
   preload() {
     this.load.image("title-bg", "assets/content/title-bg.png");
     this.load.image("play-button", "assets/content/play-button.png");
+    this.load.image("how-to-play-button", "assets/content/how-to-play-button.png");
     this.load.image("enable-music-button", "assets/content/enable-music-button.png");
     this.load.image("disable-music-button", "assets/content/disable-music-button.png");
 
@@ -62,9 +63,14 @@ export default class TitleScene extends Phaser.Scene {
     bg.displayHeight = this.scale.height;
 
     const playButton = this.add
-      .image(width / 2, height / 1.2, "play-button")
+      .image(width / 2, height / 1.4, "play-button")
       .setInteractive()
-      .setScale(1);
+      .setScale(.9);
+
+    const howToPlayButton = this.add
+      .image(width / 2, height / 1.2, "how-to-play-button")
+      .setInteractive()
+      .setScale(.7);
 
     const musicButtonScale = .30
     const musicButton = this.add
@@ -106,17 +112,22 @@ export default class TitleScene extends Phaser.Scene {
     }
 
     // Add hover feedback (optional)
-    playButton.on("pointerover", () => playButton.setScale(1.1));
-    playButton.on("pointerout", () => playButton.setScale(1));
+    playButton.on("pointerover", () => playButton.setScale(1));
+    playButton.on("pointerout", () => playButton.setScale(.9));
     musicButton.on("pointerover", () => musicButton.setScale(musicButtonScale + .1));
     musicButton.on("pointerout", () => musicButton.setScale(musicButtonScale));
+    howToPlayButton.on("pointerover", () => playButton.setScale(.8));
+    howToPlayButton.on("pointerout", () => playButton.setScale(.7));
 
     // Start the game
     playButton.on("pointerdown", () => {
       this.startGame();
     });
 
-    // 🐄 Optional: “Press Space to Start”
+    howToPlayButton.on("pointerdown", () => {
+      this.goToInstructions();
+    });
+
     this.input.keyboard.on("keydown-SPACE", () => {
       this.startGame();
     });
@@ -132,7 +143,21 @@ export default class TitleScene extends Phaser.Scene {
   startGame() {
     this.cameras.main.fadeOut(500, 0, 0, 0);
     this.cameras.main.once("camerafadeoutcomplete", () => {
-      this.scene.start("SurfScene", { score: 0, level: 1 });
+
+      const settings = SettingsManager.loadSettings();
+
+      if (settings.howToPlayViewed) {
+        this.scene.start("SurfScene", { score: 0, level: 1 });
+      } else {
+        this.scene.start("InstructionScene");
+      }
+    });
+  }
+
+  goToInstructions() {
+    this.cameras.main.fadeOut(500, 0, 0, 0);
+    this.cameras.main.once("camerafadeoutcomplete", () => {
+      this.scene.start("InstructionScene", { score: 0, level: 1 });
     });
   }
 

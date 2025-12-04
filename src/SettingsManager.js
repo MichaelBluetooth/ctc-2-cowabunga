@@ -1,7 +1,8 @@
 const STORAGE_KEY = "cowabunga_settings";
 
 const defaultSettings = {
-  musicEnabled: true
+  musicEnabled: true,
+  howToPlayViewed: false
 }
 
 export class SettingsManager {
@@ -19,5 +20,11 @@ export class SettingsManager {
     settings.musicEnabled = !settings.musicEnabled;
     this.saveSettings(settings);
     return settings.musicEnabled;
+  }
+
+  static howToPlayViewed(viewed){
+    const settings = this.loadSettings();
+    settings.howToPlayViewed = viewed;
+    this.saveSettings(settings);
   }
 }

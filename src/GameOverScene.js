@@ -19,7 +19,7 @@ export default class GameOverScene extends Phaser.Scene {
         this.load.image("retry-button", "assets/content/retry-button.png");
     }
 
-    updateScore(pts, eventName) {
+    updateScore(pts, eventName, evt = null) {
         this.score = this.score + pts;
         this.scoreText.setText(`SCORE: ${this.score}`);
         const originalScale = this.scoreText.scale;
@@ -34,6 +34,7 @@ export default class GameOverScene extends Phaser.Scene {
                 this.scoreText.clearTint();
                 this.time.delayedCall(50, () => {
                     this.events.emit(eventName);
+                    evt?.destroy();
                 });
             },
         });
@@ -82,7 +83,7 @@ export default class GameOverScene extends Phaser.Scene {
             this.updateScore(this.progress, 'levelCompletePointsAdded');
         });
 
-        this.events.on('levelCompletePointsAdded', () => {
+        this.events.once('levelCompletePointsAdded', () => {
             this.add
                 .text(235, height / 1.68, `${POINTS.pointsPerCowCaught} x ${this.cowsCaught}`, {
                     fontFamily: "Impact",
@@ -96,7 +97,7 @@ export default class GameOverScene extends Phaser.Scene {
             });
         });
 
-        this.events.on('cowsCaughtPointsAdded', () => {
+        this.events.once('cowsCaughtPointsAdded', () => {
             this.add
                 .text(235, height / 1.58, `${POINTS.pointsPerJumpedObstacle} x ${this.objectsJumpedOver}`, {
                     fontFamily: "Impact",
@@ -128,7 +129,7 @@ export default class GameOverScene extends Phaser.Scene {
                 strokeThickness: 6,
             });
 
-        this.events.on('obstaclesJumpedPointsAdded', () => {
+        this.events.once('obstaclesJumpedPointsAdded', () => {
             const retryButton = this.add
                 .image(width / 2, height / 1.15, "retry-button")
                 .setInteractive()

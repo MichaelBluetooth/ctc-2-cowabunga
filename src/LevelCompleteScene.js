@@ -78,7 +78,7 @@ export default class LevelCompleteScene extends Phaser.Scene {
       this.updateScore(POINTS.levelCompletePoints, 'levelCompletePointsAdded');
     });
 
-    this.events.on('levelCompletePointsAdded', () => {
+    this.events.once('levelCompletePointsAdded', () => {
       this.add
         .text(235, height / 1.68, `${POINTS.pointsPerCowCaught} x ${this.cowsCaught}`, {
           fontFamily: "Impact",
@@ -92,7 +92,7 @@ export default class LevelCompleteScene extends Phaser.Scene {
       });
     });
 
-    this.events.on('cowsCaughtPointsAdded', () => {
+    this.events.once('cowsCaughtPointsAdded', () => {
       this.add
         .text(235, height / 1.58, `${POINTS.pointsPerJumpedObstacle} x ${this.objectsJumpedOver}`, {
           fontFamily: "Impact",
@@ -124,7 +124,7 @@ export default class LevelCompleteScene extends Phaser.Scene {
         strokeThickness: 6,
       });
 
-    this.events.on('obstaclesJumpedPointsAdded', () => {
+    this.events.once('obstaclesJumpedPointsAdded', () => {
       const nextButton = this.add
         .image(width / 2, height / 1.15, "next-button")
         .setInteractive()

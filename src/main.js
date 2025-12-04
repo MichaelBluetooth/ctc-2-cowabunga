@@ -4,7 +4,8 @@ import SurfScene from "./SurfScene.js";
 import GameOverScene from "./GameOverScene.js";
 import GameCompleteScene from "./GameCompleteScene.js";
 import LevelCompleteScene from "./LevelCompleteScene.js";
-import LevelCompleteTransitionScene from './LevelCompleteTransitionScene.js'
+import LevelCompleteTransitionScene from './LevelCompleteTransitionScene.js';
+import InstructionScene from './InstructionScene.js'
 
 window.addEventListener("orientationchange", () => {
     if (window.orientation === 90 || window.orientation === -90) {
@@ -34,7 +35,7 @@ const config = {
             debug: false,
         },
     },
-    scene: [TitleScene, SurfScene, GameOverScene, LevelCompleteScene, GameCompleteScene, LevelCompleteTransitionScene],
+    scene: [TitleScene, InstructionScene, SurfScene, GameOverScene, LevelCompleteScene, GameCompleteScene, LevelCompleteTransitionScene],
 };
 
 new Phaser.Game(config);
